@@ -11,7 +11,10 @@ from dotenv import load_dotenv
 import os
 
 # Läs in miljövariabler från .env-filen
-load_dotenv()
+#load_dotenv()
+
+dotenv_path = '/root/.env'
+load_dotenv(dotenv_path=dotenv_path)
 
 # Använd miljövariabler för att ansluta till databasen
 db_host = os.getenv("DB_HOST")
