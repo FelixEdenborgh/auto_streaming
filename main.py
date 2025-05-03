@@ -7,15 +7,26 @@ from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
+from dotenv import load_dotenv
+import os
+
+# Läs in miljövariabler från .env-filen
+load_dotenv()
+
+# Använd miljövariabler för att ansluta till databasen
+db_host = os.getenv("DB_HOST")
+db_user = os.getenv("DB_USER")
+db_password = os.getenv("DB_PASSWORD")
+db_name = os.getenv("DB_NAME")
 
 
 # Anslut till databasen
 def connect_db():
     return mysql.connector.connect(
-        host="65.21.246.11",
-        user="admin",
-        password="Cederwall1",
-        database="Auto"
+        host=db_host,
+        user=db_user,
+        password=db_password,
+        database=db_name
     )
 
 
@@ -55,7 +66,8 @@ def play_playlist_with_selenium(playlist):
         options.add_argument("--disable-dev-shm-usage")
         options.add_argument("--start-maximized")
 
-        driver_path = r"D:\PythonPrograms\autostreaming\chromedriver\chromedriver.exe"
+        #driver_path = r"D:\PythonPrograms\autostreaming\chromedriver\chromedriver.exe"
+        driver_path = os.path.join(os.path.dirname(__file__), "chromedriver", "chromedriver")
         service = Service(executable_path=driver_path)
         driver = webdriver.Chrome(service=service, options=options)
 
