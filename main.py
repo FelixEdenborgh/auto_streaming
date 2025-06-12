@@ -54,9 +54,6 @@ def get_playlist_with_https():
     db.close()
     return result[0] if result else None
 
-
-# ... (alla imports och tidigare kod oförändrad)
-
 def play_playlist_with_selenium(playlist):
     if not playlist:
         print("Ingen spellista hittades, försöker igen med länkar som börjar på 'https:'")
