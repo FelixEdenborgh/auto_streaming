@@ -11,10 +11,10 @@ from dotenv import load_dotenv
 import os
 
 # Läs in miljövariabler från .env-filen
-load_dotenv()
+#load_dotenv()
 
-#dotenv_path = '/root/.env'
-#load_dotenv(dotenv_path=dotenv_path)
+dotenv_path = '/root/.env'
+load_dotenv(dotenv_path=dotenv_path)
 
 # Använd miljövariabler för att ansluta till databasen
 db_host = os.getenv("DB_HOST")
@@ -55,8 +55,6 @@ def get_playlist_with_https():
     return result[0] if result else None
 
 
-# ... (alla imports och tidigare kod oförändrad)
-
 def play_playlist_with_selenium(playlist):
     if not playlist:
         print("Ingen spellista hittades, försöker igen med länkar som börjar på 'https:'")
@@ -66,12 +64,12 @@ def play_playlist_with_selenium(playlist):
         print(f"Spelar spellista: {playlist}")
 
         options = Options()
-        options.add_argument("--headless=new")
+        options.add_argument("--headless=new")  # Aktiverar headless-läge (ny Chrome-version)
         options.add_argument("--no-sandbox")
         options.add_argument("--disable-dev-shm-usage")
-        options.add_argument("--window-size=1920,1080")  # Viktigt för headless
-        options.add_argument("--disable-gpu")  # Ibland krävs i vissa miljöer
+        options.add_argument("--start-maximized")
 
+        #driver_path = r"D:\PythonPrograms\autostreaming\chromedriver\chromedriver.exe"
         driver_path = os.path.join(os.path.dirname(__file__), "chromedriver", "chromedriver")
         service = Service(executable_path=driver_path)
         driver = webdriver.Chrome(service=service, options=options)
@@ -79,34 +77,31 @@ def play_playlist_with_selenium(playlist):
         try:
             driver.get(playlist)
             print("Spellista öppnad i webbläsaren.")
-            wait = WebDriverWait(driver, 20)
 
-            time.sleep(5)  # Låt sidan ladda helt
+            wait = WebDriverWait(driver, 15)
 
-            # Försök klicka på shuffle-knappen
+            # Försök klicka på shuffle-knappen först
             try:
-                shuffle_button = wait.until(EC.element_to_be_clickable((
-                    By.XPATH, '//button[./svg[@width="29" and @height="26"]]'
-                )))
-                driver.execute_script("arguments[0].click();", shuffle_button)
-                print("Shuffle-knappen klickad via JS.")
-                time.sleep(1)
+                time.sleep(5)
+                shuffle_button = wait.until(EC.element_to_be_clickable((By.XPATH, '//button[./svg[@width="29" and @height="26"]]')))
+                shuffle_button.click()
+                print("Shuffle-knappen hittades och klickades på.")
+                time.sleep(1)  # Vänta en liten stund efter shuffle
             except Exception as shuffle_error:
                 print("Kunde inte hitta eller klicka på Shuffle-knappen:", shuffle_error)
 
-            # Försök klicka på play-knappen
+            # Sedan klicka på play-knappen
             try:
-                play_button = wait.until(EC.element_to_be_clickable((
-                    By.XPATH, '//button[@aria-label="Play song"]'
-                )))
-                driver.execute_script("arguments[0].click();", play_button)
-                print("Play-knappen klickad via JS.")
+                play_button = wait.until(EC.element_to_be_clickable((By.XPATH, '//button[@aria-label="Play song"]')))
+                play_button.click()
+                print("Play-knappen hittades och klickades på.")
             except Exception as play_error:
                 print("Kunde inte hitta eller klicka på Play-knappen:", play_error)
+                driver.quit()
                 return
 
             print("Spellistan spelas nu. Väntar i 1 timme (3600 sekunder)...")
-            time.sleep(3600)
+            time.sleep(3600)  # Vänta exakt 1 timme
 
         except Exception as e:
             print("Fel uppstod:", e)
